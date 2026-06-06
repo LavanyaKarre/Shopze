@@ -8,5 +8,6 @@ router.get('/:id', ctrl.getProductById);
 router.post('/', protect, admin, ctrl.createProduct);
 router.put('/:id', protect, admin, ctrl.updateProduct);
 router.delete('/:id', protect, admin, ctrl.deleteProduct);
+router.post('/:id/reviews', protect, ctrl.addReview);
 
 module.exports = router;

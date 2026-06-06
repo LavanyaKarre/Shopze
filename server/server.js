@@ -10,22 +10,26 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());  // parses JSON request bodies (replaces body-parser)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes (we add these as we build each feature)
+// API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 
-// Test route
-app.get('/', (req, res) => res.send('ShopEZ API is running'));
+// Health check
+app.get('/', (req, res) => res.json({ message: 'ShopEZ API is running' }));
 
-// Error handling middleware (catches errors from any route)
+// 404 handler
+app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
+
+// Central error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong', error: err.message });
+  res.status(err.status || 500).json({ message: err.message || 'Server Error' });
 });
 
 const PORT = process.env.PORT || 5000;
