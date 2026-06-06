@@ -1,0 +1,24 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+// Check if user is logged in
+exports.protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization?.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+      return next();
+    } catch {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+  }
+  res.status(401).json({ message: 'No token, not authorized' });
+};
+
+// Check if user is an admin
+exports.admin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) return next();
+  res.status(403).json({ message: 'Admin access only' });
+};
